@@ -7,6 +7,7 @@ import express, {
 } from "express";
 import path from "path";
 import environmentConfig from "./config/environment.config";
+import { paypalRoutes } from "./api";
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "../public"))); // enable static folder
 
 // Routes
+app.use("/api/paypal", paypalRoutes);
 
 // If not found api then give message
 app.all("*", (req: Request, res: Response, next: NextFunction) => {

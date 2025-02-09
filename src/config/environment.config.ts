@@ -12,4 +12,5 @@ export default {
     redirectBaseUrl: process.env.PAYPAL_REDIRECT_BASE_URL,
     paypalBaseUrl: process.env.PAYPAL_BASE_URL,
   },
+  environment: process.env.NODE_ENV || "local",
 };
