@@ -33,6 +33,8 @@ export const createOrder = async (
   try {
     const accessToken = await getAccessToken();
 
+    const { price, currency } = req.body;
+
     const requestEndPoint = `${environmentConfig.paypal.paypalBaseUrl}/v2/checkout/orders`;
 
     const requestBody = {
@@ -41,8 +43,8 @@ export const createOrder = async (
         {
           reference_id: "d9f80740-38f0-11e8-b467-0ed5f89f718b",
           amount: {
-            currency_code: "USD",
-            value: "100.00",
+            currency_code: currency,
+            value: `${price}`,
           },
         },
       ],
