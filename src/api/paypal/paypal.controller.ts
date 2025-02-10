@@ -33,44 +33,50 @@ export const createOrder = async (
   try {
     const accessToken = await getAccessToken();
 
-    const response = await axios.post(
-      `${environmentConfig.paypal.paypalBaseUrl}/v2/checkout/orders`,
-      {
-        intent: "CAPTURE",
-        purchase_units: [
-          {
-            reference_id: "d9f80740-38f0-11e8-b467-0ed5f89f718b",
-            amount: {
-              currency_code: "USD",
-              value: "100.00",
-            },
+    const requestEndPoint = `${environmentConfig.paypal.paypalBaseUrl}/v2/checkout/orders`;
+
+    const requestBody = {
+      intent: "CAPTURE",
+      purchase_units: [
+        {
+          reference_id: "d9f80740-38f0-11e8-b467-0ed5f89f718b",
+          amount: {
+            currency_code: "USD",
+            value: "100.00",
           },
-        ],
-        payment_source: {
-          paypal: {
-            address: {
-              address_line_1: "2211 N First Street",
-              address_line_2: "17.3.160",
-              admin_area_1: "CA",
-              admin_area_2: "San Jose",
-              postal_code: "95131",
-              country_code: "US",
-            },
-            email_address: "payer@example.com",
-            payment_method_preference: "IMMEDIATE_PAYMENT_REQUIRED",
-            experience_context: {
-              return_url: `${environmentConfig.paypal.redirectBaseUrl}/app/complete-payment`,
-              cancel_url: `${environmentConfig.paypal.redirectBaseUrl}/app/cancel-payment`,
-            },
+        },
+      ],
+      payment_source: {
+        paypal: {
+          address: {
+            address_line_1: "2211 N First Street",
+            address_line_2: "17.3.160",
+            admin_area_1: "CA",
+            admin_area_2: "San Jose",
+            postal_code: "95131",
+            country_code: "US",
+          },
+          email_address: "payer@example.com",
+          payment_method_preference: "IMMEDIATE_PAYMENT_REQUIRED",
+          experience_context: {
+            return_url: `${environmentConfig.paypal.redirectBaseUrl}/app/complete-payment`,
+            cancel_url: `${environmentConfig.paypal.redirectBaseUrl}/app/cancel-payment`,
           },
         },
       },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }
+    };
+
+    const requestHeader = {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+    };
+
+    const response = await axios.post(
+      requestEndPoint,
+      requestBody,
+      requestHeader
     );
 
     const orderId = response.data.id;
@@ -89,16 +95,16 @@ export const capturePayment = async (
   try {
     const accessToken = await getAccessToken();
 
-    const response = await axios.post(
-      `${environmentConfig.paypal.paypalBaseUrl}/v2/checkout/orders/${req.body.orderId}/capture`,
-      {},
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }
-    );
+    const requestEndPoint = `${environmentConfig.paypal.paypalBaseUrl}/v2/checkout/orders/${req.params.orderId}/capture`;
+
+    const requestHeader = {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+    };
+
+    const response = await axios.post(requestEndPoint, {}, requestHeader);
 
     console.log("capture_payment_response:", response.data);
 
