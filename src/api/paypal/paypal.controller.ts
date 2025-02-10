@@ -39,40 +39,28 @@ export const createOrder = async (
         intent: "CAPTURE",
         purchase_units: [
           {
-            items: [
-              {
-                name: "Volatility Grid",
-                description:
-                  "Interactive Volatility dashboard for cryptocurrencies",
-                quantity: "1",
-                unit_amount: {
-                  currency_code: "USD",
-                  value: "50.00",
-                },
-              },
-            ],
-          },
-        ],
-        amount: {
-          currency_code: "USD",
-          value: "50.00",
-          breakdown: {
-            item_total: {
+            reference_id: "d9f80740-38f0-11e8-b467-0ed5f89f718b",
+            amount: {
               currency_code: "USD",
-              value: "50.00",
+              value: "100.00",
             },
           },
-        },
+        ],
         payment_source: {
           paypal: {
+            address: {
+              address_line_1: "2211 N First Street",
+              address_line_2: "17.3.160",
+              admin_area_1: "CA",
+              admin_area_2: "San Jose",
+              postal_code: "95131",
+              country_code: "US",
+            },
+            email_address: "payer@example.com",
+            payment_method_preference: "IMMEDIATE_PAYMENT_REQUIRED",
             experience_context: {
-              payment_method_preference: "IMMEDIATE_PAYMENT_REQUIRED",
-              payment_method_selected: "PAYPAL",
-              brand_name: "DekayHub - Volatility Grid",
-              locale: "en-US",
-              user_action: "PAY_NOW",
-              return_url: `${environmentConfig.paypal.redirectBaseUrl}/complete-payment`,
-              cancel_url: `${environmentConfig.paypal.redirectBaseUrl}/cancel-payment`,
+              return_url: `${environmentConfig.paypal.redirectBaseUrl}/app/complete-payment`,
+              cancel_url: `${environmentConfig.paypal.redirectBaseUrl}/app/cancel-payment`,
             },
           },
         },
@@ -85,7 +73,6 @@ export const createOrder = async (
       }
     );
 
-    console.log("response.data", response.data);
     const orderId = response.data.id;
 
     res.status(200).json({ orderId });
@@ -104,6 +91,7 @@ export const capturePayment = async (
 
     const response = await axios.post(
       `${environmentConfig.paypal.paypalBaseUrl}/v2/checkout/orders/${req.body.orderId}/capture`,
+      {},
       {
         headers: {
           "Content-Type": "application/json",
@@ -112,7 +100,7 @@ export const capturePayment = async (
       }
     );
 
-    console.log("response.data", response.data);
+    console.log("capture_payment_response:", response.data);
 
     if (response.data.status !== "COMPLETED") {
       res.status(400).json({ error: "PayPal payment incomplete or failed" });

@@ -8,9 +8,23 @@ import express, {
 import path from "path";
 import environmentConfig from "./config/environment.config";
 import { paypalRoutes } from "./api";
+import cors from "cors";
 
 const app = express();
 
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      const allowedOrigins = ["http://localhost:4002"];
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
 app.use(json());
 app.use(urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "../public"))); // enable static folder
