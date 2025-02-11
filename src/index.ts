@@ -7,7 +7,7 @@ import express, {
 } from "express";
 import path from "path";
 import environmentConfig from "./config/environment.config";
-import { paypalRoutes } from "./api";
+import { checkoutRoutes, productRoutes, subscriptionRoutes } from "./api";
 import cors from "cors";
 
 const app = express();
@@ -15,7 +15,7 @@ const app = express();
 app.use(
   cors({
     origin: function (origin, callback) {
-      const allowedOrigins = ["http://localhost:4002"];
+      const allowedOrigins = ["http://localhost:4003"];
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
@@ -30,7 +30,9 @@ app.use(urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "../public"))); // enable static folder
 
 // Routes
-app.use("/api/paypal", paypalRoutes);
+app.use("/api/checkout", checkoutRoutes);
+app.use("/api/product", productRoutes);
+app.use("/api/subscription", subscriptionRoutes);
 
 // If not found api then give message
 app.all("*", (req: Request, res: Response, next: NextFunction) => {
