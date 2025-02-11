@@ -10,32 +10,32 @@ export const createSubscription = async (req: Request, res: Response) => {
 
     const subscriptionData = {
       plan_id: req.body.plan_id,
-      start_time: req.body.start_time || new Date().toISOString(),
-      quantity: req.body.quantity || "1",
-      shipping_amount: {
-        currency_code: "USD",
-        value: "10.00",
-      },
-      subscriber: {
-        name: {
-          given_name: "John",
-          surname: "Doe",
-        },
-        email_address: "customer@example.com",
-        shipping_address: {
-          name: {
-            full_name: "John Doe",
-          },
-          address: {
-            address_line_1: "2211 N First Street",
-            address_line_2: "Building 17",
-            admin_area_2: "San Jose",
-            admin_area_1: "CA",
-            postal_code: "95131",
-            country_code: "US",
-          },
-        },
-      },
+      // start_time: req.body.start_time || new Date().toISOString(),
+      // quantity: req.body.quantity || "1",
+      // shipping_amount: {
+      //   currency_code: "USD",
+      //   value: "10.00",
+      // },
+      // subscriber: {
+      //   name: {
+      //     given_name: "John",
+      //     surname: "Doe",
+      //   },
+      //   email_address: "customer@example.com",
+      //   shipping_address: {
+      //     name: {
+      //       full_name: "John Doe",
+      //     },
+      //     address: {
+      //       address_line_1: "2211 N First Street",
+      //       address_line_2: "Building 17",
+      //       admin_area_2: "San Jose",
+      //       admin_area_1: "CA",
+      //       postal_code: "95131",
+      //       country_code: "US",
+      //     },
+      //   },
+      // },
       application_context: {
         brand_name: "walmart",
         locale: "en-US",
@@ -63,7 +63,7 @@ export const createSubscription = async (req: Request, res: Response) => {
           "Content-Type": "application/json",
           Accept: "application/json",
           "PayPal-Request-Id": `SUBSCRIPTION-${Date.now()}`, // Unique request ID
-          Prefer: "return=representation",
+          Prefer: "return=minimal",
         },
       }
     );
@@ -72,6 +72,11 @@ export const createSubscription = async (req: Request, res: Response) => {
       success: true,
       message: "Subscription created successfully",
       data: response.data,
+      data1: {
+        id: response.data.id,
+        plan_id: response.data.plan_id,
+        status: response.data.status,
+      },
     });
   } catch (error: any) {
     log.error(
