@@ -7,7 +7,12 @@ import express, {
 } from "express";
 import path from "path";
 import environmentConfig from "./config/environment.config";
-import { checkoutRoutes, productRoutes, subscriptionRoutes } from "./api";
+import {
+  checkoutRoutes,
+  planRoutes,
+  productRoutes,
+  subscriptionRoutes,
+} from "./api";
 import cors from "cors";
 
 const app = express();
@@ -32,6 +37,7 @@ app.use(express.static(path.join(__dirname, "../public"))); // enable static fol
 // Routes
 app.use("/api/checkout", checkoutRoutes);
 app.use("/api/product", productRoutes);
+app.use("/api/plan", planRoutes);
 app.use("/api/subscription", subscriptionRoutes);
 
 // If not found api then give message
