@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import axios from "axios";
 import log from "../../utils/logger";
 import getAccessToken from "../../utils/getAccessToken";
 import environmentConfig from "../../config/environment.config";
+import AxiosService from "../../utils/AxiosService";
 
 export const createProduct = async (req: Request, res: Response) => {
   try {
@@ -35,14 +35,12 @@ export const createProduct = async (req: Request, res: Response) => {
       throw new Error("All product fields are required");
     }
 
-    const response = await axios.post(
-      `${environmentConfig.paypal.paypalBaseUrl}/v1/catalogs/products`,
+    const response = await AxiosService.post(
+      "/v1/catalogs/products",
       productData,
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-          Accept: "application/json",
           "PayPal-Request-Id": `PRODUCT-${Date.now()}`, // Unique request ID
           Prefer: "return=representation",
         },

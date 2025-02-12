@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import axios from "axios";
 import log from "../../utils/logger";
 import getAccessToken from "../../utils/getAccessToken";
 import environmentConfig from "../../config/environment.config";
+import AxiosService from "../../utils/AxiosService";
 
 export const createSubscription = async (req: Request, res: Response) => {
   try {
@@ -54,14 +54,12 @@ export const createSubscription = async (req: Request, res: Response) => {
       throw new Error("Plan ID is required");
     }
 
-    const response = await axios.post(
-      `${environmentConfig.paypal.paypalBaseUrl}/v1/billing/subscriptions`,
+    const response = await AxiosService.post(
+      "/v1/billing/subscriptions",
       subscriptionData,
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-          Accept: "application/json",
           "PayPal-Request-Id": `SUBSCRIPTION-${Date.now()}`, // Unique request ID
           Prefer: "return=minimal",
         },
@@ -100,13 +98,11 @@ export const getSubscriptionDetails = async (req: Request, res: Response) => {
       throw new Error("Subscription ID is required");
     }
 
-    const response = await axios.get(
-      `${environmentConfig.paypal.paypalBaseUrl}/v1/billing/subscriptions/${subscriptionId}`,
+    const response = await AxiosService.get(
+      `/v1/billing/subscriptions/${subscriptionId}`,
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-          Accept: "application/json",
         },
       }
     );

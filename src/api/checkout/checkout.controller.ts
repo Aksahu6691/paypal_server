@@ -3,6 +3,7 @@ import log from "../../utils/logger";
 import axios from "axios";
 import environmentConfig from "../../config/environment.config";
 import getAccessToken from "../../utils/getAccessToken";
+import AxiosService from "../../utils/AxiosService";
 
 export const createOrder = async (
   req: Request,
@@ -12,8 +13,6 @@ export const createOrder = async (
     const accessToken = await getAccessToken();
 
     const { price, currency } = req.body;
-
-    const requestEndPoint = `${environmentConfig.paypal.paypalBaseUrl}/v2/checkout/orders`;
 
     const requestBody = {
       intent: "CAPTURE",
@@ -46,17 +45,14 @@ export const createOrder = async (
       },
     };
 
-    const requestHeader = {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
-    };
-
-    const response = await axios.post(
-      requestEndPoint,
+    const response = await AxiosService.post(
+      "/v2/checkout/orders",
       requestBody,
-      requestHeader
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
     );
 
     const orderId = response.data.id;
@@ -75,16 +71,11 @@ export const capturePayment = async (
   try {
     const accessToken = await getAccessToken();
 
-    const requestEndPoint = `${environmentConfig.paypal.paypalBaseUrl}/v2/checkout/orders/${req.params.orderId}/capture`;
-
-    const requestHeader = {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
-    };
-
-    const response = await axios.post(requestEndPoint, {}, requestHeader);
+    const response = await axios.post(
+      `/v2/checkout/orders/${req.params.orderId}/capture`,
+      {},
+      { headers: { Authorization: `Bearer ${accessToken}` } }
+    );
 
     console.log("capture_payment_response:", response.data);
 
