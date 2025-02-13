@@ -4,6 +4,7 @@ import axios from "axios";
 import environmentConfig from "../../config/environment.config";
 import getAccessToken from "../../utils/getAccessToken";
 import AxiosService from "../../utils/AxiosService";
+import { errorResponse, successResponse } from "../../utils/apiResponse";
 
 export const createOrder = async (
   req: Request,
@@ -80,7 +81,7 @@ export const capturePayment = async (
     console.log("capture_payment_response:", response.data);
 
     if (response.data.status !== "COMPLETED") {
-      res.status(400).json({ error: "PayPal payment incomplete or failed" });
+      throw new Error("PayPal payment incomplete or failed");
     }
 
     const email = "eJg9x@example.com";
@@ -90,14 +91,13 @@ export const capturePayment = async (
       currentDate.setDate(currentDate.getDate() + daysToExtend)
     );
 
-    res.status(200).json({
-      message: "Payment captured successfully",
+    successResponse(res, "Payment captured successfully", {
       email,
       tier: "pro",
       tierEndAt,
     });
-  } catch (error) {
-    log.error("Error:", (error as Error).message);
-    res.status(500).json({ error: (error as Error).message });
+  } catch (error: any) {
+    log.error("Error:", error.message);
+    errorResponse(res, error);
   }
 };

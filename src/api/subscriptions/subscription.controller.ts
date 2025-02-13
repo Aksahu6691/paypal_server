@@ -41,11 +41,8 @@ export const createSubscription = async (req: Request, res: Response) => {
       }
     );
 
-    res.status(201).json({
-      success: true,
-      message: "Subscription created successfully",
-      data: response.data,
-      data1: {
+    successResponse(res, "Subscription created successfully", {
+      data: {
         id: response.data.id,
         plan_id: response.data.plan_id,
         status: response.data.status,
@@ -56,11 +53,7 @@ export const createSubscription = async (req: Request, res: Response) => {
       "Error creating PayPal subscription:",
       error.response?.data || error.message
     );
-    res.status(500).json({
-      success: false,
-      message: "Failed to create subscription",
-      error: error.response?.data || error.message,
-    });
+    errorResponse(res, error);
   }
 };
 

@@ -3,9 +3,10 @@ import { Response } from "express";
 export const successResponse = <T>(
   res: Response,
   message: string,
-  data?: T
+  data?: T,
+  statusCode = 200
 ) => {
-  return res.status(200).json({
+  return res.status(statusCode).json({
     success: true,
     message,
     ...(data !== undefined && { data }), // Only include `data` if provided
