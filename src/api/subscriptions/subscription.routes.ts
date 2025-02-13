@@ -1,13 +1,13 @@
 import express from "express";
 import {
   createSubscription,
-  getSubscriptionDetails,
+  approveSubscription,
 } from "./subscription.controller";
 
 const subscriptionRoutes = express.Router();
 
 subscriptionRoutes
   .post("/create", createSubscription)
-  .get("/get/:subscriptionId", getSubscriptionDetails);
+  .post("/approve", approveSubscription);
 
 export default subscriptionRoutes;

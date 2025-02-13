@@ -3,6 +3,7 @@ import log from "../../utils/logger";
 import getAccessToken from "../../utils/getAccessToken";
 import environmentConfig from "../../config/environment.config";
 import AxiosService from "../../utils/AxiosService";
+import { errorResponse, successResponse } from "../../utils/apiResponse";
 
 export const createSubscription = async (req: Request, res: Response) => {
   try {
@@ -10,32 +11,6 @@ export const createSubscription = async (req: Request, res: Response) => {
 
     const subscriptionData = {
       plan_id: req.body.plan_id,
-      // start_time: req.body.start_time || new Date().toISOString(),
-      // quantity: req.body.quantity || "1",
-      // shipping_amount: {
-      //   currency_code: "USD",
-      //   value: "10.00",
-      // },
-      // subscriber: {
-      //   name: {
-      //     given_name: "John",
-      //     surname: "Doe",
-      //   },
-      //   email_address: "customer@example.com",
-      //   shipping_address: {
-      //     name: {
-      //       full_name: "John Doe",
-      //     },
-      //     address: {
-      //       address_line_1: "2211 N First Street",
-      //       address_line_2: "Building 17",
-      //       admin_area_2: "San Jose",
-      //       admin_area_1: "CA",
-      //       postal_code: "95131",
-      //       country_code: "US",
-      //     },
-      //   },
-      // },
       application_context: {
         brand_name: "walmart",
         locale: "en-US",
@@ -89,17 +64,17 @@ export const createSubscription = async (req: Request, res: Response) => {
   }
 };
 
-export const getSubscriptionDetails = async (req: Request, res: Response) => {
+export const approveSubscription = async (req: Request, res: Response) => {
   try {
     const accessToken = await getAccessToken();
-    const { subscriptionId } = req.params;
+    const { orderID, subscriptionID } = req.body;
 
-    if (!subscriptionId) {
-      throw new Error("Subscription ID is required");
+    if (!orderID || !subscriptionID) {
+      throw new Error("Order ID and subscription ID are required");
     }
 
     const response = await AxiosService.get(
-      `/v1/billing/subscriptions/${subscriptionId}`,
+      `/v1/billing/subscriptions/${subscriptionID}`,
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -107,20 +82,11 @@ export const getSubscriptionDetails = async (req: Request, res: Response) => {
       }
     );
 
-    res.status(200).json({
-      success: true,
-      message: "Subscription details retrieved successfully",
+    successResponse(res, "Subscription details retrieved successfully", {
       data: response.data,
     });
   } catch (error: any) {
-    log.error(
-      "Error fetching PayPal subscription details:",
-      error.response?.data || error.message
-    );
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch subscription details",
-      error: error.response?.data || error.message,
-    });
+    log.error("Error validating PayPal subscription:", error);
+    errorResponse(res, error);
   }
 };

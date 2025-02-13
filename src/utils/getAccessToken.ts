@@ -3,15 +3,19 @@ import environmentConfig from "../config/environment.config";
 
 const getAccessToken = async (): Promise<void> => {
   try {
+    const data = new URLSearchParams();
+    data.append("grant_type", "client_credentials");
+
+    const authHeader = Buffer.from(
+      `${environmentConfig.paypal.clientId}:${environmentConfig.paypal.clientSecret}`
+    ).toString("base64");
+
     const response = await axios.post(
       `${environmentConfig.paypal.paypalBaseUrl}/v1/oauth2/token`,
-      new URLSearchParams({ grant_type: "client_credentials" }),
+      "grant_type=client_credentials",
       {
-        auth: {
-          username: environmentConfig.paypal.clientId ?? "",
-          password: environmentConfig.paypal.clientSecret ?? "",
-        },
         headers: {
+          Authorization: `Basic ${authHeader}`,
           "Content-Type": "application/x-www-form-urlencoded",
         },
       }
@@ -19,7 +23,8 @@ const getAccessToken = async (): Promise<void> => {
 
     const newAccessToken = response.data.access_token;
     return newAccessToken;
-  } catch (error) {
+  } catch (error: any) {
+    console.log("error", error.response.data);
     throw new Error((error as Error).message);
   }
 };

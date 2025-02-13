@@ -8,10 +8,7 @@ export const createProduct = async (req: Request, res: Response) => {
   try {
     const accessToken = await getAccessToken();
 
-    let image_url = "";
-    if (req.file) {
-      image_url = `images/${req.file.filename}`;
-    } else {
+    if (!req.file) {
       throw new Error("Image is required");
     }
 
@@ -20,7 +17,7 @@ export const createProduct = async (req: Request, res: Response) => {
       description: req.body.description,
       type: req.body.type || "SERVICE",
       category: req.body.category || "SOFTWARE",
-      image_url: image_url,
+      image_url: `images/${req.file.filename}`,
       home_url: req.body.home_url || environmentConfig.paypal.redirectBaseUrl,
     };
 
