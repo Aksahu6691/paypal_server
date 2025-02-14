@@ -4,6 +4,10 @@ import getAccessToken from "../../utils/getAccessToken";
 import environmentConfig from "../../config/environment.config";
 import AxiosService from "../../utils/AxiosService";
 import { errorResponse, successResponse } from "../../utils/apiResponse";
+import { AppDataSource } from "../../config/database.config";
+import { Subscriptions } from "./subscription.model";
+
+const subscriptionRepository = AppDataSource.getRepository(Subscriptions);
 
 export const createSubscription = async (req: Request, res: Response) => {
   try {
@@ -42,11 +46,9 @@ export const createSubscription = async (req: Request, res: Response) => {
     );
 
     successResponse(res, "Subscription created successfully", {
-      data: {
-        id: response.data.id,
-        plan_id: response.data.plan_id,
-        status: response.data.status,
-      },
+      subscriptionID: response.data.id,
+      plan_id: subscriptionData.plan_id,
+      status: response.data.status,
     });
   } catch (error: any) {
     log.error(
@@ -75,11 +77,41 @@ export const approveSubscription = async (req: Request, res: Response) => {
       }
     );
 
-    successResponse(res, "Subscription details retrieved successfully", {
-      data: response.data,
+    // Validate subscription status
+    if (response.data?.status !== "ACTIVE") {
+      throw new Error("Subscription is not active");
+    }
+
+    // Prepare subscription data
+    const newSubscription = new Subscriptions();
+    newSubscription.user_id = req.body.user_id;
+    newSubscription.plan_id = response.data.plan_id;
+    newSubscription.status = response.data.status;
+    newSubscription.start_time = response.data.start_time;
+    newSubscription.next_billing_time =
+      response.data.billing_info.next_billing_time;
+    newSubscription.last_payment_date =
+      response.data.billing_info.last_payment?.time || null;
+    newSubscription.last_payment_status =
+      response.data.billing_info.failed_payments_count > 0
+        ? "FAILED"
+        : "SUCCESS";
+    newSubscription.failure_reason = null; // No failure reason for an active subscription
+    newSubscription.cancellation_date = null; // No cancellation date for an active subscription
+
+    await subscriptionRepository.save(newSubscription);
+
+    successResponse(res, "Subscription verified successfully", {
+      subscriptionID: response.data.id,
+      status: response.data.status,
+      start_time: response.data.start_time,
+      next_billing_time: response.data.billing_info.next_billing_time,
     });
   } catch (error: any) {
-    log.error("Error validating PayPal subscription:", error);
+    log.error(
+      "Error verifying PayPal subscription:",
+      error.response?.data || error.message
+    );
     errorResponse(res, error);
   }
 };
