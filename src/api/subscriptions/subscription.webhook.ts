@@ -23,7 +23,7 @@ export const handlePaypalWebhook = async (req: Request, res: Response) => {
     //   throw new Error("Webhook signature verification failed");
     // }
 
-    log.info("Received PayPal webhook event:", event);
+    log.info("Received PayPal webhook event:", event.event_type);
 
     // Handle different webhook events
     switch (event.event_type) {
@@ -93,7 +93,7 @@ const getPaypalCertificate = (certUrl: string): string => {
 const handleSubscriptionActivated = async (event: any) => {
   const subscriptionId = event.resource.id;
   const subscription = await subscriptionRepository.findOne({
-    where: { _id: subscriptionId },
+    where: { subscription_id: subscriptionId },
   });
   if (subscription) {
     subscription.status = "ACTIVE";
@@ -104,7 +104,7 @@ const handleSubscriptionActivated = async (event: any) => {
 const handleSubscriptionCancelled = async (event: any) => {
   const subscriptionId = event.resource.id;
   const subscription = await subscriptionRepository.findOne({
-    where: { _id: subscriptionId },
+    where: { subscription_id: subscriptionId },
   });
   if (subscription) {
     subscription.status = "CANCELLED";
@@ -116,7 +116,7 @@ const handleSubscriptionCancelled = async (event: any) => {
 const handleSubscriptionCreated = async (event: any) => {
   const subscriptionId = event.resource.id;
   const newSubscription = new Subscriptions();
-  newSubscription._id = subscriptionId;
+  newSubscription.subscription_id = subscriptionId;
   newSubscription.user_id = event.resource.subscriber.payer_id; // Adjust based on your data
   newSubscription.plan_id = event.resource.plan_id;
   newSubscription.status = "PENDING";
@@ -126,7 +126,7 @@ const handleSubscriptionCreated = async (event: any) => {
 const handleSubscriptionExpired = async (event: any) => {
   const subscriptionId = event.resource.id;
   const subscription = await subscriptionRepository.findOne({
-    where: { _id: subscriptionId },
+    where: { subscription_id: subscriptionId },
   });
   if (subscription) {
     subscription.status = "EXPIRED";
@@ -137,7 +137,7 @@ const handleSubscriptionExpired = async (event: any) => {
 const handleSubscriptionPaymentFailed = async (event: any) => {
   const subscriptionId = event.resource.id;
   const subscription = await subscriptionRepository.findOne({
-    where: { _id: subscriptionId },
+    where: { subscription_id: subscriptionId },
   });
   if (subscription) {
     subscription.last_payment_status = "FAILED";
@@ -149,7 +149,7 @@ const handleSubscriptionPaymentFailed = async (event: any) => {
 const handleSubscriptionReactivated = async (event: any) => {
   const subscriptionId = event.resource.id;
   const subscription = await subscriptionRepository.findOne({
-    where: { _id: subscriptionId },
+    where: { subscription_id: subscriptionId },
   });
   if (subscription) {
     subscription.status = "ACTIVE";
@@ -160,7 +160,7 @@ const handleSubscriptionReactivated = async (event: any) => {
 const handleSubscriptionSuspended = async (event: any) => {
   const subscriptionId = event.resource.id;
   const subscription = await subscriptionRepository.findOne({
-    where: { _id: subscriptionId },
+    where: { subscription_id: subscriptionId },
   });
   if (subscription) {
     subscription.status = "SUSPENDED";
@@ -171,7 +171,7 @@ const handleSubscriptionSuspended = async (event: any) => {
 const handleSubscriptionUpdated = async (event: any) => {
   const subscriptionId = event.resource.id;
   const subscription = await subscriptionRepository.findOne({
-    where: { _id: subscriptionId },
+    where: { subscription_id: subscriptionId },
   });
   if (subscription) {
     subscription.status = event.resource.status;

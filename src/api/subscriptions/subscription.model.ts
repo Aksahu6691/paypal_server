@@ -18,6 +18,9 @@ export class Subscriptions {
   @Column()
   plan_id!: string;
 
+  @Column()
+  subscription_id!: string;
+
   @Column({
     type: "enum",
     enum: ["ACTIVE", "CANCELED", "EXPIRED", "SUSPENDED", "PENDING"],

@@ -86,6 +86,7 @@ export const approveSubscription = async (req: Request, res: Response) => {
     const newSubscription = new Subscriptions();
     newSubscription.user_id = req.body.user_id;
     newSubscription.plan_id = response.data.plan_id;
+    newSubscription.subscription_id = response.data.id;
     newSubscription.status = response.data.status;
     newSubscription.start_time = response.data.start_time;
     newSubscription.next_billing_time =
