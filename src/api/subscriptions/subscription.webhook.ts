@@ -5,6 +5,7 @@ import { errorResponse, successResponse } from "../../utils/apiResponse";
 import { AppDataSource } from "../../config/database.config";
 import { Subscriptions } from "./subscription.model";
 import environmentConfig from "../../config/environment.config";
+import sendEmail from "../../utils/sendCustomEmail";
 
 const subscriptionRepository = AppDataSource.getRepository(Subscriptions);
 
@@ -17,13 +18,13 @@ export const handlePaypalWebhook = async (req: Request, res: Response) => {
     // const timestamp = req.headers['paypal-transmission-time'] as string;
     // const signature = req.headers['paypal-transmission-sig'] as string;
 
-    // // Verify the webhook signature
+    // Verify the webhook signature
     // const verified = verifyWebhookSignature(webhookId, event, paypalCertUrl, transmissionId, timestamp, signature);
     // if (!verified) {
     //   throw new Error("Webhook signature verification failed");
     // }
 
-    log.info("Received PayPal webhook event:", event.event_type);
+    log.info(`Received PayPal webhook event: ${event.event_type}`);
 
     // Handle different webhook events
     switch (event.event_type) {
@@ -85,7 +86,7 @@ const verifyWebhookSignature = (
 };
 
 const getPaypalCertificate = (certUrl: string): string => {
-  // Implement this function to fetch the PayPal certificate from the provided URL
+  // TODO:Implement this function to fetch the PayPal certificate from the provided URL
   // This is a placeholder implementation
   return "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----";
 };
@@ -131,6 +132,7 @@ const handleSubscriptionExpired = async (event: any) => {
   if (subscription) {
     subscription.status = "EXPIRED";
     await subscriptionRepository.save(subscription);
+    await sendEmail("mybusiness6691@gmail.com");
   }
 };
 

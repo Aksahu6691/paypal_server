@@ -12,6 +12,7 @@ import {
   productRoutes,
   subscriptionRoutes,
 } from "./api";
+import "./cron/cron";
 import cors from "cors";
 
 const app = express();

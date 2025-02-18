@@ -37,5 +37,10 @@ export default {
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
   },
+  email: {
+    apiKey: process.env.SENDGRID_API_KEY,
+    fromEmail: process.env.FROM_EMAIL,
+    sendGridTemId: process.env.SENDGRID_TEM_ID,
+  },
   environment: process.env.NODE_ENV || "local",
 };
