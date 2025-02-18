@@ -17,7 +17,7 @@ export const handlePaypalWebhook = async (req: Request, res: Response) => {
 
     // Verify the webhook signature
     const verified = await verifyWebhookSignature(eventHeaders, event);
-    console.log("verified", verified);
+    console.log("verification", verified);
 
     if (!verified) {
       throw new Error("Webhook signature verification failed");

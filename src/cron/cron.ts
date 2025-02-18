@@ -1,9 +1,11 @@
 import cron from "node-cron";
+import sendNotification from "./sendNotification";
 
 cron.schedule(
   "30 10  * * *",
   () => {
     console.log("Running a Cron job at 10:30 AM at Asia timezone");
+    sendNotification();
   },
   {
     scheduled: true,
