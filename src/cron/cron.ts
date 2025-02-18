@@ -11,13 +11,13 @@ cron.schedule(
   }
 );
 
-cron.schedule(
-  "* * * * *",
-  () => {
-    console.log("Running a job every minute at Asia timezone");
-  },
-  {
-    scheduled: true,
-    timezone: "Asia/kolkata",
-  }
-);
+// cron.schedule(
+//   "* * * * *",
+//   () => {
+//     console.log("Running a job every minute at Asia timezone");
+//   },
+//   {
+//     scheduled: true,
+//     timezone: "Asia/kolkata",
+//   }
+// );

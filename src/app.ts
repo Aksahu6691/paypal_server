@@ -14,6 +14,7 @@ import {
 } from "./api";
 import "./cron/cron";
 import cors from "cors";
+import bodyParser from "body-parser";
 
 const app = express();
 
@@ -36,6 +37,7 @@ app.use(
 app.use(json());
 app.use(urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "../public"))); // enable static folder
+app.use(bodyParser.json());
 
 // Routes
 app.use("/api/checkout", checkoutRoutes);

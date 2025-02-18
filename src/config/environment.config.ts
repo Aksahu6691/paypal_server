@@ -28,6 +28,7 @@ export default {
     clientSecret: process.env.PAYPAL_CLIENT_SECRET,
     redirectBaseUrl: process.env.PAYPAL_REDIRECT_BASE_URL,
     paypalBaseUrl: process.env.PAYPAL_BASE_URL,
+    webhookId: process.env.PAYPAL_WEBHOOK_ID,
   },
   db: {
     type: process.env.DB_TYPE,

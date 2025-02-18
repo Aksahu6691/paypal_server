@@ -1,32 +1,31 @@
 import { Request, Response } from "express";
-import crypto from "crypto";
 import log from "../../utils/logger";
-import { errorResponse, successResponse } from "../../utils/apiResponse";
+import { errorResponse } from "../../utils/apiResponse";
 import { AppDataSource } from "../../config/database.config";
 import { Subscriptions } from "./subscription.model";
-import environmentConfig from "../../config/environment.config";
 import sendEmail from "../../utils/sendCustomEmail";
+import { verifyWebhookSignature } from "../../utils/verifyWebhookEvent";
 
 const subscriptionRepository = AppDataSource.getRepository(Subscriptions);
 
 export const handlePaypalWebhook = async (req: Request, res: Response) => {
   try {
     const event = req.body;
-    // const webhookId = environmentConfig.paypal.webhookId; // Your PayPal webhook ID
-    // const paypalCertUrl = req.headers['paypal-cert-url'] as string;
-    // const transmissionId = req.headers['paypal-transmission-id'] as string;
-    // const timestamp = req.headers['paypal-transmission-time'] as string;
-    // const signature = req.headers['paypal-transmission-sig'] as string;
+    const eventHeaders = req.headers;
+
+    console.info(`✅ incoming PayPal webhook event: ${event.event_type}`);
 
     // Verify the webhook signature
-    // const verified = verifyWebhookSignature(webhookId, event, paypalCertUrl, transmissionId, timestamp, signature);
-    // if (!verified) {
-    //   throw new Error("Webhook signature verification failed");
-    // }
+    const verified = await verifyWebhookSignature(eventHeaders, event);
+    console.log("verified", verified);
 
-    log.info(`Received PayPal webhook event: ${event.event_type}`);
+    if (!verified) {
+      throw new Error("Webhook signature verification failed");
+    }
 
-    // Handle different webhook events
+    log.info(`✅ Verified PayPal webhook event: ${event.event_type}`);
+
+    // Proceed with handling the webhook events
     switch (event.event_type) {
       case "BILLING.SUBSCRIPTION.ACTIVATED":
         await handleSubscriptionActivated(event);
@@ -56,39 +55,12 @@ export const handlePaypalWebhook = async (req: Request, res: Response) => {
         log.warn(`Unhandled event type: ${event.event_type}`);
     }
 
-    // Acknowledge receipt of the webhook
-    successResponse(
-      res,
-      `Webhook event ${event.event_type} processed successfully`
-    );
-  } catch (error) {
+    log.info(`Webhook event ${event.event_type} processed successfully`);
+    res.sendStatus(200);
+  } catch (error: any) {
     log.error("Error processing PayPal webhook:", error);
     errorResponse(res, error);
   }
-};
-
-const verifyWebhookSignature = (
-  webhookId: string,
-  event: any,
-  certUrl: string,
-  transmissionId: string,
-  timestamp: string,
-  signature: string
-): boolean => {
-  const message = `${transmissionId}|${timestamp}|${webhookId}|${crypto
-    .createHash("sha256")
-    .update(JSON.stringify(event))
-    .digest("hex")}`;
-  const paypalCert = getPaypalCertificate(certUrl); // Implement this function to fetch the PayPal certificate
-  const verifier = crypto.createVerify("sha256");
-  verifier.update(message);
-  return verifier.verify(paypalCert, signature, "base64");
-};
-
-const getPaypalCertificate = (certUrl: string): string => {
-  // TODO:Implement this function to fetch the PayPal certificate from the provided URL
-  // This is a placeholder implementation
-  return "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----";
 };
 
 const handleSubscriptionActivated = async (event: any) => {
