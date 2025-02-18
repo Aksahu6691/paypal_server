@@ -17,13 +17,15 @@ export const handlePaypalWebhook = async (req: Request, res: Response) => {
 
     // Verify the webhook signature
     const verified = await verifyWebhookSignature(eventHeaders, event);
-    console.log("verification", verified);
+    console.log("😊 verification", verified);
 
     if (!verified) {
       throw new Error("Webhook signature verification failed");
     }
 
-    log.info(`✅ Verified PayPal webhook event: ${event.event_type}`);
+    // Return a 200 status code immediately to acknowledge the webhook event
+    // before the connection is closed.
+    res.sendStatus(200);
 
     // Proceed with handling the webhook events
     switch (event.event_type) {
@@ -55,10 +57,7 @@ export const handlePaypalWebhook = async (req: Request, res: Response) => {
         log.warn(`Unhandled event type: ${event.event_type}`);
     }
 
-    successResponse(
-      res,
-      `Webhook event ${event.event_type} processed successfully`
-    );
+    log.info(`Webhook event ${event.event_type} processed successfully`);
   } catch (error: any) {
     log.error("Error processing PayPal webhook:", error);
     errorResponse(res, error);
