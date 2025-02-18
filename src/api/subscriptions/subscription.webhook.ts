@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import log from "../../utils/logger";
-import { errorResponse, successResponse } from "../../utils/apiResponse";
+import { errorResponse } from "../../utils/apiResponse";
 import { AppDataSource } from "../../config/database.config";
 import { Subscriptions } from "./subscription.model";
 import sendEmail from "../../utils/sendCustomEmail";
@@ -45,7 +45,7 @@ export const handlePaypalWebhook = async (req: Request, res: Response) => {
         await handleSubscriptionPaymentFailed(event);
         break;
       case "BILLING.SUBSCRIPTION.RE-ACTIVATED":
-        await handleSubscriptionReactivated(event);
+        await handleSubscriptionActivated(event);
         break;
       case "BILLING.SUBSCRIPTION.SUSPENDED":
         await handleSubscriptionSuspended(event);
@@ -117,17 +117,6 @@ const handleSubscriptionPaymentFailed = async (event: any) => {
   if (subscription) {
     subscription.last_payment_status = "FAILED";
     subscription.failure_reason = event.resource.failure_reason;
-    await subscriptionRepository.save(subscription);
-  }
-};
-
-const handleSubscriptionReactivated = async (event: any) => {
-  const subscriptionId = event.resource.id;
-  const subscription = await subscriptionRepository.findOne({
-    where: { subscription_id: subscriptionId },
-  });
-  if (subscription) {
-    subscription.status = "ACTIVE";
     await subscriptionRepository.save(subscription);
   }
 };

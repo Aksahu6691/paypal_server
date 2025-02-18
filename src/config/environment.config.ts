@@ -43,5 +43,5 @@ export default {
     fromEmail: process.env.FROM_EMAIL,
     sendGridTemId: process.env.SENDGRID_TEM_ID,
   },
-  environment: process.env.NODE_ENV || "local",
+  environment: process.env.NODE_ENV ?? "local",
 };
