@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import log from "../../utils/logger";
-import { errorResponse } from "../../utils/apiResponse";
+import { errorResponse, successResponse } from "../../utils/apiResponse";
 import { AppDataSource } from "../../config/database.config";
 import { Subscriptions } from "./subscription.model";
 import sendEmail from "../../utils/sendCustomEmail";
@@ -55,8 +55,10 @@ export const handlePaypalWebhook = async (req: Request, res: Response) => {
         log.warn(`Unhandled event type: ${event.event_type}`);
     }
 
-    log.info(`Webhook event ${event.event_type} processed successfully`);
-    res.sendStatus(200);
+    successResponse(
+      res,
+      `Webhook event ${event.event_type} processed successfully`
+    );
   } catch (error: any) {
     log.error("Error processing PayPal webhook:", error);
     errorResponse(res, error);
