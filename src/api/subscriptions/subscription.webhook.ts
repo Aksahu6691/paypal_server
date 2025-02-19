@@ -5,6 +5,7 @@ import { AppDataSource } from "../../config/database.config";
 import { Subscriptions } from "./subscription.model";
 import sendEmail from "../../utils/sendCustomEmail";
 import { verifyWebhookSignature } from "../../utils/verifyWebhookEvent";
+import sendNotification from "../../cron/sendNotification";
 
 const subscriptionRepository = AppDataSource.getRepository(Subscriptions);
 
@@ -72,6 +73,7 @@ const handleSubscriptionActivated = async (event: any) => {
   if (subscription) {
     subscription.status = "ACTIVE";
     await subscriptionRepository.save(subscription);
+    await sendNotification(subscription.user_id, subscription.status);
   }
 };
 
@@ -84,6 +86,7 @@ const handleSubscriptionCancelled = async (event: any) => {
     subscription.status = "CANCELLED";
     subscription.cancellation_date = new Date();
     await subscriptionRepository.save(subscription);
+    await sendNotification(subscription.user_id, subscription.status);
   }
 };
 
@@ -95,6 +98,7 @@ const handleSubscriptionCreated = async (event: any) => {
   newSubscription.plan_id = event.resource.plan_id;
   newSubscription.status = "PENDING";
   await subscriptionRepository.save(newSubscription);
+  await sendNotification(newSubscription.user_id, newSubscription.status);
 };
 
 const handleSubscriptionExpired = async (event: any) => {
@@ -105,7 +109,7 @@ const handleSubscriptionExpired = async (event: any) => {
   if (subscription) {
     subscription.status = "EXPIRED";
     await subscriptionRepository.save(subscription);
-    await sendEmail("mybusiness6691@gmail.com");
+    await sendNotification(subscription.user_id, subscription.status);
   }
 };
 
@@ -118,6 +122,7 @@ const handleSubscriptionPaymentFailed = async (event: any) => {
     subscription.last_payment_status = "FAILED";
     subscription.failure_reason = event.resource.failure_reason;
     await subscriptionRepository.save(subscription);
+    await sendNotification(subscription.user_id, subscription.status);
   }
 };
 
@@ -129,6 +134,7 @@ const handleSubscriptionSuspended = async (event: any) => {
   if (subscription) {
     subscription.status = "SUSPENDED";
     await subscriptionRepository.save(subscription);
+    await sendNotification(subscription.user_id, subscription.status);
   }
 };
 
@@ -142,5 +148,6 @@ const handleSubscriptionUpdated = async (event: any) => {
     subscription.next_billing_time =
       event.resource.billing_info.next_billing_time;
     await subscriptionRepository.save(subscription);
+    await sendNotification(subscription.user_id, subscription.status);
   }
 };

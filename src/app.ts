@@ -11,6 +11,7 @@ import {
   planRoutes,
   productRoutes,
   subscriptionRoutes,
+  userRoutes,
 } from "./api";
 import "./cron/cron";
 import cors from "cors";
@@ -44,6 +45,7 @@ app.use("/api/checkout", checkoutRoutes);
 app.use("/api/product", productRoutes);
 app.use("/api/plan", planRoutes);
 app.use("/api/subscription", subscriptionRoutes);
+app.use("/api/user", userRoutes);
 
 // If not found api then give message
 app.all("*", (req: Request, res: Response, next: NextFunction) => {
